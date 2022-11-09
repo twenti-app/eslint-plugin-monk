@@ -1,0 +1,28 @@
+{
+	"name": "eslint-plugin-monk",
+	"description": "eslint plugin to sort your imports and exports",
+	"version": "0.0.0",
+	"author": "arrastia@pm.me",
+	"license": "MIT",
+	"main": "build/index.js",
+	"scripts": {},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/twenti-app/eslint-plugin-monk.git"
+	},
+	"keywords": [
+		"import",
+		"export",
+		"imports",
+		"exports",
+		"import-export",
+		"monk"
+	],
+	"bugs": {
+		"url": "https://github.com/twenti-app/eslint-plugin-monk/issues"
+	},
+	"homepage": "https://github.com/twenti-app/eslint-plugin-monk#readme",
+	"devDependencies": {
+		"@babel/plugin-syntax-import-assertions": "^7.20.0"
+	}
+}
