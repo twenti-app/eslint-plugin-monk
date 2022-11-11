@@ -8,6 +8,7 @@
   "scripts": {
     "clean": "rimraf build/",
     "copy-files": "copyfiles -f \"src/plugin/**/*\" build/",
+    "prepublishOnly": "npm run build",
     "build": "npm run clean && npm run copy-files"
   },
   "repository": {
