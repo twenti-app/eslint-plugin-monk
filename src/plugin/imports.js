@@ -11,7 +11,10 @@ module.exports = {
     schema: [
       {
         type: 'object',
-        properties: { groups: { type: 'array', items: { type: 'array', items: { type: 'string' } } } },
+        properties: {
+          groups: { type: 'array', items: { type: 'array', items: { type: 'string' } } },
+          sortBy: { enum: ['import', 'from'] }
+        },
         additionalProperties: false
       }
     ],
@@ -19,23 +22,23 @@ module.exports = {
     messages: { sort: `Here's the thing... These imports should be sorted.` }
   },
   create: context => {
-    const { groups: rawGroups = defaultGroups } = context.options[0] || {};
+    const { groups: rawGroups = defaultGroups, sortBy = 'import' } = context.options[0] || {};
     const outerGroups = rawGroups.map(groups => groups.map(item => RegExp(item, 'u')));
 
     return {
       Program: programNode => {
         for (const chunk of utils.extractChunks(programNode, node => (isImport(node) ? 'PartOfChunk' : 'NotPartOfChunk'))) {
-          maybeReportChunkSorting(chunk, context, outerGroups);
+          maybeReportChunkSorting(chunk, context, outerGroups, sortBy);
         }
       }
     };
   }
 };
 
-function maybeReportChunkSorting(chunk, context, outerGroups) {
+function maybeReportChunkSorting(chunk, context, outerGroups, sortBy) {
   const sourceCode = context.getSourceCode();
   const items = utils.getImportExportItems(chunk, sourceCode, isSideEffectImport, getSpecifiers);
-  const sortedItems = makeSortedItems(items, outerGroups);
+  const sortedItems = makeSortedItems(items, outerGroups, sortBy);
   const sorted = utils.printSortedItems(sortedItems, items, sourceCode);
 
   const { start } = items[0];
@@ -44,7 +47,7 @@ function maybeReportChunkSorting(chunk, context, outerGroups) {
   utils.maybeReportSorting(context, sorted, start, end);
 }
 
-function makeSortedItems(items, outerGroups) {
+function makeSortedItems(items, outerGroups, sortBy) {
   const itemGroups = outerGroups.map(groups => groups.map(regex => ({ regex, items: [] })));
   const rest = [];
 
@@ -72,7 +75,7 @@ function makeSortedItems(items, outerGroups) {
     .concat([[{ regex: /^/, items: rest }]])
     .map(groups => groups.filter(group => group.items.length > 0))
     .filter(groups => groups.length > 0)
-    .map(groups => groups.map(group => utils.sortImportExportItems(group.items)));
+    .map(groups => groups.map(group => utils.sortImportExportItems(group.items, sortBy)));
 }
 
 // Exclude "ImportDefaultSpecifier" – the "def" in `import def, {a, b}`.

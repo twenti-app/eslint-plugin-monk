@@ -1,6 +1,6 @@
 const { importRegex } = require('./helpers');
 
-const REACT = ['react', 'react-router-dom', 'recoil'];
+const REACT = ['react', 'react-dom', 'react-router-dom', 'recoil'];
 const REACT_LIBRARIES = ['^react-', '^@react-'];
 const EXTERNAL_LIBRARIES = ['^@?\\w'];
 

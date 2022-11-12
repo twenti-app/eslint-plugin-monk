@@ -603,28 +603,30 @@ function getTrailingSpaces(node, sourceCode) {
   return lines[0];
 }
 
-function sortImportExportItems(items) {
-  return items.slice().sort((itemA, itemB) =>
-    // If both items are side effect imports, keep their original order.
-    itemA.isSideEffectImport && itemB.isSideEffectImport
-      ? itemA.index - itemB.index
-      : // If one of the items is a side effect import, move it first.
-      itemA.isSideEffectImport
-      ? -1
-      : itemB.isSideEffectImport
-      ? 1
-      : // Compare the `from` part.
-        compare(itemA.source.source, itemB.source.source) ||
-        // The `.source` has been slightly tweaked. To stay fully deterministic,
-        // also sort on the original value.
-        compare(itemA.source.originalSource, itemB.source.originalSource) ||
-        // Then put type imports/exports before regular ones.
-        compare(itemA.source.kind, itemB.source.kind) ||
-        // Keep the original order if the sources are the same. It’s not worth
-        // trying to compare anything else, and you can use `import/no-duplicates`
-        // to get rid of the problem anyway.
-        itemA.index - itemB.index
-  );
+function sortImportExportItems(items, sortBy) {
+  return items.slice().sort((itemA, itemB) => {
+    if (itemA.isSideEffectImport && itemB.isSideEffectImport) return itemA.index - itemB.index;
+
+    if (itemA.isSideEffectImport) return -1;
+
+    if (itemB.isSideEffectImport) return 1;
+
+    if (sortBy === 'import') return compare(itemA.code, itemB.code);
+
+    return (
+      // Compare the `from` part.
+      compare(itemA.source.source, itemB.source.source) ||
+      // The `.source` has been slightly tweaked. To stay fully deterministic,
+      // also sort on the original value.
+      compare(itemA.source.originalSource, itemB.source.originalSource) ||
+      // Then put type imports/exports before regular ones.
+      compare(itemA.source.kind, itemB.source.kind) ||
+      // Keep the original order if the sources are the same. It’s not worth
+      // trying to compare anything else, and you can use `import/no-duplicates`
+      // to get rid of the problem anyway.
+      itemA.index - itemB.index
+    );
+  });
 }
 
 function sortSpecifierItems(items) {
