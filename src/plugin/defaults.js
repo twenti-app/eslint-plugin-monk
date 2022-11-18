@@ -4,7 +4,7 @@ const REACT = ['react', 'react-dom', 'react-router-dom', 'recoil'];
 const REACT_LIBRARIES = ['^react-', '^@react-'];
 const EXTERNAL_LIBRARIES = ['^@?\\w'];
 
-const STYLES = ['^.+\\.?(styles.ts)$', '^.+\\.?(.scss)$', '^.+\\.?(.css)$'];
+const STYLES = ['^.+\\.?(.styles)$', '^.+\\.?(.scss)$', '^.+\\.?(.css)$'];
 
 const ASSETS = ['assets'];
 const CONFIGURATION = ['configuration'];
