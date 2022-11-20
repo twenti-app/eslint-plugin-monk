@@ -1,3 +1,3 @@
-const importRegex = fileType => [`^(@|ui/${fileType})(/.*|$)`, `^(@|./${fileType})(/.*|$)`, `^(@|${fileType})(/.*|$)`];
+const importRegex = fileType => [`^(@|ui/${fileType})`, `^(@|./${fileType})`, `^(@|${fileType})`];
 
 module.exports = { importRegex };
