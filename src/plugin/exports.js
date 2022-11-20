@@ -27,10 +27,46 @@ module.exports = {
 
 const isSideEffectImport = () => false;
 
+function makeSortedItems(items) {
+  const NOT_MATCHED = ['^'];
+  const TYPES = [['^\\.'], ['^.+\\u0000$']];
+  const rawGroups = [NOT_MATCHED, ...TYPES];
+
+  const outerGroups = rawGroups.map(groups => groups.map(item => RegExp(item, 'u')));
+  const itemGroups = outerGroups.map(groups => groups.map(regex => ({ regex, items: [] })));
+  const rest = [];
+
+  for (const item of items) {
+    const { originalSource } = item.source;
+
+    const source = item.isSideEffectImport ? `\0${originalSource}` : item.source.kind !== 'value' ? `${originalSource}\0` : originalSource;
+    const [matchedGroup] = utils
+      .flatMap(itemGroups, groups => groups.map(group => [group, group.regex.exec(source)]))
+      .reduce(
+        ([group, longestMatch], [nextGroup, nextMatch]) =>
+          nextMatch != null && (longestMatch == null || nextMatch[0].length > longestMatch[0].length)
+            ? [nextGroup, nextMatch]
+            : [group, longestMatch],
+        [undefined, undefined]
+      );
+    if (matchedGroup == null) {
+      rest.push(item);
+    } else {
+      matchedGroup.items.push(item);
+    }
+  }
+
+  return itemGroups
+    .concat([[{ regex: /^/, items: rest }]])
+    .map(groups => groups.filter(group => group.items.length > 0))
+    .filter(groups => groups.length > 0)
+    .map(groups => groups.map(group => utils.sortImportExportItems(group.items, 'import')));
+}
+
 function maybeReportChunkSorting(chunk, context) {
   const sourceCode = context.getSourceCode();
   const items = utils.getImportExportItems(chunk, sourceCode, isSideEffectImport, getSpecifiers);
-  const sortedItems = [[utils.sortImportExportItems(items)]];
+  const sortedItems = makeSortedItems(items);
   const sorted = utils.printSortedItems(sortedItems, items, sourceCode);
 
   const { start } = items[0];
