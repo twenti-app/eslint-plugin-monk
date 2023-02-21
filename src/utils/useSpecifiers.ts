@@ -4,6 +4,7 @@ import { findLastIndex } from './commonUtils';
 import type { SpaceToken, Token } from '../@types/types';
 import type { Comment } from 'estree';
 
+export type SortBy = 'name' | 'path';
 export type State = 'before' | 'specifier' | 'after';
 
 export interface Specifier {
@@ -200,4 +201,4 @@ export const getSpecifierItems = (tokens: Token[]) => {
   return results;
 };
 
-export const sortSpecifierItems = () => {};
+export const sortSpecifierItems = (specifiers: Specifier[], sortBy: SortBy) => {};
